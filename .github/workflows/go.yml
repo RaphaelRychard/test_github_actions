@@ -9,58 +9,30 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# Definição dos jobs do workflow
 jobs:
-  # Job para testar o código
-  test:
-    # Ambiente de execução do job (Ubuntu mais recente)
-    runs-on: ubuntu-latest
-    # Lista de passos a serem executados neste job
-    steps: 
-      # Passo para fazer checkout do repositório no commit atual
-      - uses: actions/checkout@v3 
-      
-      # Nome do passo: Configuração do ambiente Go
-      - name: Set up Go 
-        # Usa a action actions/setup-go para configurar o ambiente Go
+    test:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          # Versão específica do Go a ser utilizada
-          go-version: 1.18 
-      
-      # Nome do passo: Construção do banco de dados
-      - name: Build-DB 
-        # Comando para construir os serviços do 
-        # banco de dados usando docker-compose
-        run: docker-compose build 
-        
-      # Nome do passo: Criação do banco de dados
-      - name: Create-DB 
-        # Comando para criar e iniciar os 
-        # serviços do banco de dados em modo detach
-        run: docker-compose up -d 
+            go-version: 1.18
 
-      # Nome do passo: Execução dos testes
-      - name: Test 
-        # Comando para executar os testes do Go, 
-        # mostrando detalhes com a opção -v
-        run: go test -v main_test.go 
+      - name: Build-DB
+        run: docker-compose build
 
-  # Job para compilar o código
-  build:
-    # Dependência do job 'build' ao job 'test' 
-    #(o job 'build' só é executado após o 'test')
-    needs: test 
-    
-    # Ambiente de execução do job (Ubuntu mais recente)
-    runs-on: ubuntu-latest
-    # Lista de passos a serem executados neste job
-    steps: 
-      # Passo para fazer checkout do repositório no commit atual
-      - uses: actions/checkout@v3 
+      - name: Create-DB
+        run: docker-compose up -d
 
-      # Nome do passo: Compilação do código
-      - name: Build 
-        # Comando para compilar o código Go em um executável, 
-        # mostrando detalhes com a opção -v
-        run: go build -v main.go 
+      - name: Test
+        run: go test -v main_test.go
+
+    build:
+        needs: test
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v3
+        - name: Build
+          run: go build -v main.go
