@@ -47,7 +47,7 @@ jobs:
 
         strategy:
           matrix:
-            os: ['ubuntu-latest', 'ubuntu-18']
+            os: ['ubuntu-latest', 'ubuntu-20.04']
         
         steps:
         - uses: actions/checkout@v3
